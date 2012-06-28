@@ -15,11 +15,15 @@ ERR_LOGGER="logger -p daemon.err -t mysql-tzdata -i"
 MYSQL_CLI="/usr/bin/mysql --defaults-file=/etc/mysql/debian.cnf"
 MYSQL_BOOTSTRAP="/usr/sbin/mysqld --bootstrap --user=mysql --skip-grant-tables"
 
+mysql_statedir=/var/lib/mysql
+flag_file=$mysql_statedir/debian-tzdata.flag
+
 case "$1" in
 
   configure|triggered)
 
     echo "Reloading MySQL timezones" | $ERR_LOGGER
+    touch $flag_file
 
     # Convert the timezones to SQL ready to load into the mysql database
     # This is an easy way to get the 'USE mysql;' required for the bootstrap
@@ -47,7 +51,7 @@ case "$1" in
 
     # Cleanup temporary file and log completion
     echo "Reloaded MySQL timezones" | $ERR_LOGGER
-    rm -f $TZSQL
+    rm -f $TZSQL $flag_file
     
   ;;
 
