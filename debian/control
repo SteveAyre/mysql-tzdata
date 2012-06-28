@@ -10,7 +10,7 @@ Vcs-Browser: https://github.com/SteveAyre/mysql-cluster-7.2
 
 Package: mysql-tzdata
 Architecture: all
-Depends: mysql-server, mysql-client, tzdata
+Depends: mysql-server, mysql-client, tzdata, ${misc:Depends}
 Enhances: mysql-server
 Description: Keeps MySQL Timezones updated from tzdata
  MySQL is a fast, stable and true multi-user, multi-threaded SQL database
