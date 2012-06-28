@@ -12,7 +12,7 @@ Package: mysql-tzdata
 Architecture: all
 Depends: mysql-server, mysql-client, tzdata
 Enhances: mysql-server
-Description: MySQL Timezone support
+Description: Keeps MySQL Timezones updated from tzdata
  MySQL is a fast, stable and true multi-user, multi-threaded SQL database
  server. SQL (Structured Query Language) is the most popular database query
  language in the world. The main goals of MySQL are speed, robustness and
