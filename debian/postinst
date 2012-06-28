@@ -17,7 +17,8 @@ MYSQL_BOOTSTRAP="/usr/sbin/mysqld --bootstrap --user=mysql --skip-grant-tables"
 
 case "$1" in
 
-  triggered)
+  configure|triggered)
+
     # Load the timezones, either by connecting if mysqld is running or using bootstrap command if it is not
     set +e
     mysqladmin ping >/dev/null 2>&1
@@ -32,7 +33,7 @@ case "$1" in
     
   ;;
 
-  configure|abort-upgrade|abort-remove|abort-configure)
+  abort-upgrade|abort-remove|abort-configure)
   ;;
 
   *)
