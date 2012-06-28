@@ -1,0 +1,46 @@
+#!/bin/bash
+
+set -e
+
+. /usr/share/debconf/confmodule
+
+if [ -n "$DEBIAN_SCRIPT_DEBUG" ]; then set -v -x; DEBIAN_SCRIPT_TRACE=1; fi
+${DEBIAN_SCRIPT_TRACE:+ echo "#42#DEBUG# RUNNING $0 $*" 1>&2 }
+ 
+export PATH=$PATH:/sbin:/usr/sbin:/bin:/usr/bin
+
+# This command can be used as pipe to syslog. With "-s" it also logs to stderr.
+ERR_LOGGER="logger -p daemon.err -t mysqld_safe -i"
+
+MYSQL_MYSQLDB="/usr/bin/mysql --defaults-file=/etc/mysql/debian.cnf mysql"
+MYSQL_BOOTSTRAP="/usr/sbin/mysqld --bootstrap --user=mysql --skip-grant-tables"
+
+case "$1" in
+
+  triggered)
+    # Load the timezones, either by connecting if mysqld is running or using bootstrap command if it is not
+    set +e
+    mysqladmin ping >/dev/null 2>&1
+    ping_alive=$?
+    set -e
+    echo "Reloading timezones" | $ERR_LOGGER
+    if [ $ping_alive = 0 ]; then
+        mysql_tzinfo_to_sql /usr/share/zoneinfo | $MYSQL_MYSQLDB 2>&1 | $ERR_LOGGER
+    else
+        mysql_tzinfo_to_sql /usr/share/zoneinfo | $MYSQL_BOOTSTRAP 2>&1 | $ERR_LOGGER
+    fi
+    
+  ;;
+
+  configure|abort-upgrade|abort-remove|abort-configure)
+  ;;
+
+  *)
+    echo "postinst called with unknown argument '$1'" 1>&2
+    exit 1
+  ;;
+esac
+
+#DEBHELPER
+
+exit 0

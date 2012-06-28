@@ -1,0 +1,13 @@
+This package installs a trigger on tzdata's zoneinfo files.
+
+When tzdata is updated, this package will load the updated timezone
+information into MySQL, which stores this information in internal
+timezone tables.
+
+This can manually be done using mysql_tzinfo_to_sql, but thanks
+to this trigger this package keeps MySQL in sync with tzdata.
+
+If MySQL is running this will be done by connecting as the
+debian-sys-maint user. If MySQL is not running then it will be
+run using the bootstrap option while the timezones are loaded.
+

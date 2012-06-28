@@ -1,0 +1,25 @@
+Source: mysql-tzdata
+Section: database
+Priority: optional
+Maintainer: Steven Ayre <steveayre@gmail.com>
+Uploaders: Steven Ayre <steveayre@gmail.com>
+Standards-Version: 3.9.3
+Build-Depends: debhelper (>= 9)
+Vcs-Git: git://github.com/SteveAyre/mysql-cluster-7.2.git
+Vcs-Browser: https://github.com/SteveAyre/mysql-cluster-7.2
+
+Package: mysql-tzdata
+Architecture: all
+Depends: mysql-server, mysql-client, tzdata
+Enhances: mysql-server
+Description: MySQL Timezone support
+ MySQL is a fast, stable and true multi-user, multi-threaded SQL database
+ server. SQL (Structured Query Language) is the most popular database query
+ language in the world. The main goals of MySQL are speed, robustness and
+ ease of use.
+ .
+ This package syncronises tzdata updates to the MySQL timezone tables.
+ .
+ This is an empty package - it performs the syncronisation through a
+ dpkg trigger.
+

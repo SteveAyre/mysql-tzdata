@@ -1,0 +1,7 @@
+* Set a flag to indicate that MySQL timezone information is out of date.
+* Only remove this flag when the timezones have been successfully updated.
+* If MySQL isn't running do not use the bootstrap option, instead check for
+  this flag when MySQL next starts from debian-start This could be
+  implemented by adding a /etc/mysql/debian-start.d hook directory
+  to mysql-server packages.
+
