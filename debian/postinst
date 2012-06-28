@@ -45,7 +45,8 @@ case "$1" in
         cat $TZSQL | $MYSQL_BOOTSTRAP 2>&1 | $ERR_LOGGER
     fi
 
-    # Cleanup temporary file
+    # Cleanup temporary file and log completion
+    echo "Reloaded MySQL timezones" | $ERR_LOGGER
     rm -f $TZSQL
     
   ;;
