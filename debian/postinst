@@ -10,26 +10,43 @@ ${DEBIAN_SCRIPT_TRACE:+ echo "#42#DEBUG# RUNNING $0 $*" 1>&2 }
 export PATH=$PATH:/sbin:/usr/sbin:/bin:/usr/bin
 
 # This command can be used as pipe to syslog. With "-s" it also logs to stderr.
-ERR_LOGGER="logger -p daemon.err -t mysqld_safe -i"
+ERR_LOGGER="logger -p daemon.err -t mysql-tzdata -i"
 
-MYSQL_MYSQLDB="/usr/bin/mysql --defaults-file=/etc/mysql/debian.cnf mysql"
+MYSQL_CLI="/usr/bin/mysql --defaults-file=/etc/mysql/debian.cnf"
 MYSQL_BOOTSTRAP="/usr/sbin/mysqld --bootstrap --user=mysql --skip-grant-tables"
 
 case "$1" in
 
   configure|triggered)
 
+    echo "Reloading MySQL timezones" | $ERR_LOGGER
+
+    # Convert the timezones to SQL ready to load into the mysql database
+    # This is an easy way to get the 'USE mysql;' required for the bootstrap
+    # Normally the timezone tables don't support transactions, but we wrap it
+    # in BEGIN; COMMIT; so that if transactions are used if the user has made
+    # the tables transactional.
+    # Note we must use sed to strip newlines within queries from the
+    # mysql_tzinfo_to_sql output - otherwise the bootstrap command gives
+    # an error.
+    TZSQL=`tempfile`
+    echo -e "USE mysql;\nBEGIN;\n" > $TZSQL
+    mysql_tzinfo_to_sql /usr/share/zoneinfo | sed -e ':a;N;$!ba;s/)\n/)/g;' | sed -e ':a;N;$!ba;s/VALUES\n/VALUES /g;' >> $TZSQL
+    echo "COMMIT;" >> $TZSQL
+
     # Load the timezones, either by connecting if mysqld is running or using bootstrap command if it is not
     set +e
     mysqladmin ping >/dev/null 2>&1
     ping_alive=$?
     set -e
-    echo "Reloading timezones" | $ERR_LOGGER
     if [ $ping_alive = 0 ]; then
-        mysql_tzinfo_to_sql /usr/share/zoneinfo | $MYSQL_MYSQLDB 2>&1 | $ERR_LOGGER
+        cat $TZSQL | $MYSQL_CLI 2>&1 | $ERR_LOGGER
     else
-        mysql_tzinfo_to_sql /usr/share/zoneinfo | $MYSQL_BOOTSTRAP 2>&1 | $ERR_LOGGER
+        cat $TZSQL | $MYSQL_BOOTSTRAP 2>&1 | $ERR_LOGGER
     fi
+
+    # Cleanup temporary file
+    rm -f $TZSQL
     
   ;;
 
